@@ -5,8 +5,12 @@
  */
 
 export interface Session {
-  tag: string;
+  sessionId: string;
+  displayName: string;
+  messageCount: number;
   projectPath: string;
   mtime: string; // ISO string
   hash: string;
+  fileName: string;
+  tag?: string; // Deprecated
 }

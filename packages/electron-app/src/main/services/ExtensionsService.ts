@@ -7,10 +7,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { ExtensionStorage } from '@google/gemini-cli/dist/src/config/extensions/storage.js';
-import { EXTENSIONS_CONFIG_FILENAME } from '@google/gemini-cli/dist/src/config/extensions/variables.js';
-import { ExtensionManager } from '@google/gemini-cli/dist/src/config/extension-manager.js';
-import { loadSettings } from '@google/gemini-cli/dist/src/config/settings.js';
+import { GEMINI_CLI_DIST } from '../config/paths';
 
 export interface ExtensionInfo {
   name: string;
@@ -63,6 +60,13 @@ export class ExtensionsService {
   }
 
   async getInstalledExtensions(): Promise<ExtensionInfo[]> {
+    const { ExtensionStorage } = await import(
+      path.join(GEMINI_CLI_DIST, 'src/config/extensions/storage.js')
+    );
+    const { EXTENSIONS_CONFIG_FILENAME } = await import(
+      path.join(GEMINI_CLI_DIST, 'src/config/extensions/variables.js')
+    );
+
     const extensionsDir = ExtensionStorage.getUserExtensionsDir();
     
     if (!fs.existsSync(extensionsDir)) {
@@ -103,6 +107,13 @@ export class ExtensionsService {
 
   async installExtension(source: string): Promise<void> {
     try {
+      const { loadSettings } = await import(
+        path.join(GEMINI_CLI_DIST, 'src/config/settings.js')
+      );
+      const { ExtensionManager } = await import(
+        path.join(GEMINI_CLI_DIST, 'src/config/extension-manager.js')
+      );
+
       const workspaceDir = os.homedir();
       const { merged: settings } = await loadSettings(workspaceDir);
       
@@ -147,6 +158,13 @@ export class ExtensionsService {
 
   async uninstallExtension(name: string): Promise<void> {
     try {
+      const { loadSettings } = await import(
+        path.join(GEMINI_CLI_DIST, 'src/config/settings.js')
+      );
+      const { ExtensionManager } = await import(
+        path.join(GEMINI_CLI_DIST, 'src/config/extension-manager.js')
+      );
+
       const workspaceDir = os.homedir();
       const { merged: settings } = await loadSettings(workspaceDir);
       

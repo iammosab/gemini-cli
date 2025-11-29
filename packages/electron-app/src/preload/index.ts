@@ -58,6 +58,17 @@ contextBridge.exposeInMainWorld('electron', {
   },
   sessions: {
     getRecent: () => ipcRenderer.invoke('sessions:get-recent'),
+    ensureInProject: (
+      sourceHash: string,
+      fileName: string,
+      targetCwd: string,
+    ) =>
+      ipcRenderer.invoke(
+        'sessions:ensure-in-project',
+        sourceHash,
+        fileName,
+        targetCwd,
+      ),
     delete: (hash: string, tag: string) =>
       ipcRenderer.invoke('sessions:delete', hash, tag),
   },

@@ -108,7 +108,12 @@ export function WelcomeScreen({
     try {
       const path = await window.electron.openDirectory();
       if (path) {
-        await window.electron.settings.set({ changes: { terminalCwd: path } as Partial<CliSettings> });
+        const result = await window.electron.settings.set({
+          changes: { terminalCwd: path } as Partial<CliSettings>,
+        });
+        if (!result.success) {
+          console.error('Failed to update settings:', result.error);
+        }
         await refreshSettings();
       }
     } catch (error) {
@@ -118,10 +123,18 @@ export function WelcomeScreen({
 
   const handleDeleteSession = async (e: React.MouseEvent, session: Session) => {
     e.stopPropagation();
-    if (window.confirm(`Are you sure you want to delete session "${session.tag}"?`)) {
+    const displayName = session.displayName || session.tag || 'Session';
+    if (
+      window.confirm(`Are you sure you want to delete session "${displayName}"?`)
+    ) {
       try {
-        await window.electron.sessions.delete(session.hash, session.tag);
-        setSessions((prev) => prev.filter((s) => !(s.hash === session.hash && s.tag === session.tag)));
+        await window.electron.sessions.delete(session.hash, session.fileName);
+        setSessions((prev) =>
+          prev.filter(
+            (s) =>
+              !(s.hash === session.hash && s.fileName === session.fileName),
+          ),
+        );
       } catch (error) {
         console.error('Failed to delete session:', error);
       }
@@ -191,22 +204,25 @@ export function WelcomeScreen({
                   <p>No recent sessions found.</p>
                 </div>
               ) : (
-                sessions.slice(0, 5).map((session) => (
-                  <div
-                    key={`${session.hash}-${session.tag}`}
-                    className="session-item-container"
-                  >
+                sessions
+                  .filter((session) => session.displayName !== 'Empty conversation')
+                  .map((session) => (
+                    <div
+                      key={`${session.hash}-${session.fileName}`}
+                      className="session-item-container"
+                    >
                     <button
                       className="session-item"
-                      onClick={() => onSelectSession(session)}
+                      onClick={() =>
+                        onSelectSession({
+                          ...session,
+                          projectPath: currentPath,
+                        })
+                      }
                     >
                       <div className="session-info">
-                        <span className="session-tag">{session.tag}</span>
-                        <span
-                          className="session-project"
-                          title={session.projectPath}
-                        >
-                          {session.projectPath.split('/').pop()}
+                        <span className="session-tag">
+                          {session.displayName || session.tag}
                         </span>
                       </div>
                       <span className="session-date">

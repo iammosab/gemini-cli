@@ -157,29 +157,11 @@ export function useTerminal(
   }, [containerRef, sessionId]);
 
   useEffect(() => {
-    if (visible && term.current && fitAddon.current && containerRef.current) {
-      // Trigger resize immediately when becoming visible
-      // We use requestAnimationFrame to ensure the browser has applied the 'display: flex' layout
-      requestAnimationFrame(() => {
-        if (containerRef.current && containerRef.current.clientWidth > 0) {
-            try {
-              const geometry = fitAddon.current?.proposeDimensions();
-              if (geometry && geometry.cols > 0 && geometry.rows > 0) {
-                window.electron.terminal.resize({
-                  sessionId,
-                  cols: geometry.cols,
-                  rows: geometry.rows,
-                });
-              }
-              fitAddon.current?.fit();
-              term.current?.focus();
-            } catch {
-              // Ignore errors
-            }
-        }
-      });
+    if (visible && term.current) {
+      // Focus the terminal when it becomes visible
+      term.current.focus();
     }
-  }, [visible, sessionId]);
+  }, [visible]);
 
   useEffect(() => {
     if (term.current) {

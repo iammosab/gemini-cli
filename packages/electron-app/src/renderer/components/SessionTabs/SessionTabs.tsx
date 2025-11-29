@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Terminal, Plus, FolderOpen, History, MonitorPlay, X } from 'lucide-react';
 import './SessionTabs.css';
 
@@ -17,7 +17,7 @@ interface SessionTabsProps {
   onClose?: (sessionId: string) => void;
 }
 
-export function SessionTabs({
+export const SessionTabs = React.memo(function SessionTabs({
   sessions,
   activeSessionId,
   onSelect,
@@ -114,4 +114,4 @@ export function SessionTabs({
       </div>
     </div>
   );
-}
+});

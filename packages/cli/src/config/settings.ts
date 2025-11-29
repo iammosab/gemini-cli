@@ -832,5 +832,6 @@ export function saveSettings(settingsFile: SettingsFile): void {
       'There was an error saving your latest settings changes.',
       error,
     );
+    throw error;
   }
 }

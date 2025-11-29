@@ -1,0 +1,62 @@
+{
+  "productName": "Gemini CLI",
+  "appId": "com.google.gemini-cli",
+  "directories": {
+    "output": "dist/electron",
+    "app": "packages/electron-app"
+  },
+  "asarUnpack": [
+    "**/node_modules/node-pty/**",
+    "**/node_modules/@lydell/**",
+    "**/node_modules/ajv/**/*"
+  ],
+  "files": [
+    "out/**/*",
+    "package.json"
+  ],
+  "extraResources": [
+    {
+      "from": "bundle",
+      "to": "bundle"
+    },
+    {
+      "from": "packages/cli/dist",
+      "to": "cli"
+    },
+    {
+      "from": "packages/core/dist",
+      "to": "core"
+    },
+    {
+      "from": "packages/electron-app/src/resources",
+      "to": "resources"
+    },
+    {
+      "from": "docs/changelogs",
+      "to": "docs/changelogs"
+    }
+  ],
+  "mac": {
+    "icon": "packages/electron-app/src/resources/icon.png",
+    "target": [
+      {
+        "target": "dmg",
+        "arch": [
+          "x64",
+          "arm64"
+        ]
+      }
+    ]
+  },
+  "win": {
+    "icon": "packages/electron-app/src/resources/icon.png",
+    "target": "nsis"
+  },
+  "linux": {
+    "icon": "packages/electron-app/src/resources/icon.png",
+    "target": [
+      "AppImage",
+      "deb"
+    ]
+  }
+}

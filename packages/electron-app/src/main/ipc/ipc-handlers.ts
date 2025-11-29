@@ -13,6 +13,7 @@ import { join, extname, resolve, sep, isAbsolute } from 'node:path';
 import type { WindowManager } from '../managers/window-manager';
 import type { CliSettings } from '../config/types';
 import { deepMerge } from '../utils/utils';
+import { CLI_PATH, GEMINI_CLI_DIST } from '../config/paths';
 import { GitService } from '../services/GitService';
 import { SessionService } from '../services/SessionService';
 import { ChangelogService } from '../services/ChangelogService';
@@ -214,8 +215,19 @@ export function registerIpcHandlers(windowManager: WindowManager) {
     return sessionService.getRecentSessions();
   });
 
-  ipcMain.handle('sessions:delete', async (_event, hash: string, tag: string) => {
-    return sessionService.deleteSession(hash, tag);
+  ipcMain.handle(
+    'sessions:ensure-in-project',
+    async (_event, sourceHash: string, fileName: string, targetCwd: string) => {
+      return sessionService.ensureSessionInProject(
+        sourceHash,
+        fileName,
+        targetCwd,
+      );
+    },
+  );
+
+  ipcMain.handle('sessions:delete', async (_event, hash: string, fileName: string) => {
+    return sessionService.deleteSession(hash, fileName);
   });
 
   ipcMain.handle('changelog:get', async () => {
@@ -396,7 +408,7 @@ export function registerIpcHandlers(windowManager: WindowManager) {
 
   ipcMain.handle('settings:get', async () => {
     const { loadSettings } = await import(
-      '@google/gemini-cli/dist/src/config/settings.js'
+      join(GEMINI_CLI_DIST, 'src/config/settings.js')
     );
     const settings = await loadSettings(os.homedir());
     const merged = settings.merged as CliSettings;
@@ -430,7 +442,7 @@ export function registerIpcHandlers(windowManager: WindowManager) {
   ipcMain.handle('settings:get-schema', async () => {
     try {
       const { getSettingsSchema } = await import(
-        '@google/gemini-cli/dist/src/config/settingsSchema.js'
+        join(GEMINI_CLI_DIST, 'src/config/settingsSchema.js')
       );
       return getSettingsSchema();
     } catch (error) {
@@ -441,10 +453,10 @@ export function registerIpcHandlers(windowManager: WindowManager) {
 
   ipcMain.handle('themes:get', async () => {
     const { loadSettings } = await import(
-      '@google/gemini-cli/dist/src/config/settings.js'
+      join(GEMINI_CLI_DIST, 'src/config/settings.js')
     );
     const { themeManager } = await import(
-      '@google/gemini-cli/dist/src/ui/themes/theme-manager.js'
+      join(GEMINI_CLI_DIST, 'src/ui/themes/theme-manager.js')
     );
     const { merged } = await loadSettings(os.homedir());
     const settings = merged as CliSettings;
@@ -460,10 +472,10 @@ export function registerIpcHandlers(windowManager: WindowManager) {
     const { changes, scope = 'User' } = parseResult.data;
 
     const { loadSettings, saveSettings, SettingScope } = await import(
-      '@google/gemini-cli/dist/src/config/settings.js'
+      join(GEMINI_CLI_DIST, 'src/config/settings.js')
     );
     const { getSettingsSchema } = await import(
-      '@google/gemini-cli/dist/src/config/settingsSchema.js'
+      join(GEMINI_CLI_DIST, 'src/config/settingsSchema.js')
     );
     try {
       const loadedSettings = await loadSettings(os.homedir());

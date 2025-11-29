@@ -20,6 +20,10 @@ export const CLI_PATH = isPackaged
   ? join(process.resourcesPath, 'bundle', 'gemini.js')
   : resolve(__dirname, '../../../../bundle/gemini.js');
 
+export const GEMINI_CLI_DIST = isPackaged
+  ? join(process.resourcesPath, 'cli')
+  : resolve(__dirname, '../../../../packages/cli/dist');
+
 if (!isPackaged && !existsSync(CLI_PATH)) {
   console.error(`[Config] Development CLI path not found at: ${CLI_PATH}`);
 }

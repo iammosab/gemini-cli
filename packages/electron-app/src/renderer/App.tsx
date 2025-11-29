@@ -573,7 +573,7 @@ function App() {
   };
 
   const handleSessionSelect = async (session: Session) => {
-    const sessionId = session.tag;
+    const sessionId = session.sessionId;
     // If session not in list, add it
     if (!sessions.some((s) => s.id === sessionId)) {
       setSessions((prev) => {
@@ -586,7 +586,7 @@ function App() {
           return [
             {
               id: sessionId,
-              name: session.tag || 'Session',
+              name: session.displayName || session.tag || 'Session',
               cwd: session.projectPath,
               isLoading: true,
             },
@@ -596,7 +596,7 @@ function App() {
           ...prev,
           {
             id: sessionId,
-            name: session.tag || 'Session',
+            name: session.displayName || session.tag || 'Session',
             cwd: session.projectPath,
             isLoading: true,
           },
@@ -612,6 +612,14 @@ function App() {
     setActiveSessionId(sessionId);
 
     try {
+      if (session.hash && session.fileName && session.projectPath) {
+        await window.electron.sessions.ensureInProject(
+          session.hash,
+          session.fileName,
+          session.projectPath,
+        );
+      }
+
       await window.electron.settings.set({
         changes: { terminalCwd: session.projectPath } as Partial<CliSettings>,
       });
@@ -769,16 +777,28 @@ function App() {
     };
   }, [setTheme]);
 
+  const prevActiveSessionId = useRef(activeSessionId);
+
   useEffect(() => {
     const session = sessions.find((s) => s.id === activeSessionId);
     const currentCwd = (settings?.merged as CliSettings)?.terminalCwd;
 
-    if (session?.cwd && session.cwd !== currentCwd) {
-      window.electron.settings
-        .set({ changes: { terminalCwd: session.cwd } as Partial<CliSettings> })
-        .then(() => refreshSettings())
-        .catch((e) => console.error('Failed to sync settings:', e));
+    if (activeSessionId !== prevActiveSessionId.current) {
+      // Session switched: Sync global settings to match the new session's CWD
+      if (session?.cwd && session.cwd !== currentCwd) {
+        window.electron.settings
+          .set({
+            changes: { terminalCwd: session.cwd } as Partial<CliSettings>,
+          })
+          .then(() => refreshSettings())
+          .catch((e) => console.error('Failed to sync settings:', e));
+      }
     }
+    // Note: We intentionally do NOT sync global settings -> session CWD here.
+    // This allows the Welcome Screen (or other windows) to change the "default" CWD
+    // without hijacking the current session's working directory.
+
+    prevActiveSessionId.current = activeSessionId;
   }, [activeSessionId, sessions, settings, refreshSettings]);
 
   // Resize Logic for Diff Pane
@@ -888,7 +908,7 @@ function App() {
       {view === 'welcome' && (
         <WelcomeScreen
           onNavigate={(v) => {
-            if (v === 'workspace' && sessions.length === 0) {
+            if (v === 'workspace') {
               handleAddSession();
             }
             setView(v);

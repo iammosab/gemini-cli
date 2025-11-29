@@ -101,6 +101,11 @@ export interface IElectronAPI {
   };
   sessions: {
     getRecent: () => Promise<Session[]>;
+    ensureInProject: (
+      sourceHash: string,
+      fileName: string,
+      targetCwd: string,
+    ) => Promise<void>;
     delete: (hash: string, tag: string) => Promise<void>;
   };
   changelog: {

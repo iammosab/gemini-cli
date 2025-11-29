@@ -42,7 +42,7 @@ interface SidebarProps {
   isResizing?: boolean;
 }
 
-export function Sidebar({
+export const Sidebar = React.memo(function Sidebar({
   workspaces,
   onSelect,
   onFileClick,
@@ -156,4 +156,4 @@ export function Sidebar({
       </div>
     </div>
   );
-}
+});

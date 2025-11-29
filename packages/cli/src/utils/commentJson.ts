@@ -36,7 +36,7 @@ export function updateSettingsFilePreservingFormat(
       'Error parsing settings file. Please check the JSON syntax.',
       error,
     );
-    return;
+    throw error;
   }
 
   const updatedStructure = applyUpdates(parsed, updates);

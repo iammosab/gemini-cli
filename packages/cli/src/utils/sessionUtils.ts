@@ -423,10 +423,19 @@ export class SessionSelector {
           const fileContent = await fs.readFile(checkpointPath, 'utf8');
           const content = JSON.parse(fileContent);
 
+          let contentArr = content;
+          if (
+            !Array.isArray(content) &&
+            content.history &&
+            Array.isArray(content.history)
+          ) {
+            contentArr = content.history;
+          }
+
           // Check if it looks like a checkpoint (array of Content)
-          if (Array.isArray(content)) {
+          if (Array.isArray(contentArr)) {
             // Convert checkpoint (Content[]) to ConversationRecord
-            const messages = content.map((item) => ({
+            const messages = contentArr.map((item: any) => ({
               type: item.role === 'user' ? 'user' : 'model',
               content: item.parts || [],
             })) as MessageRecord[];
