@@ -323,7 +323,7 @@ describe('AppContainer State Management', () => {
       backgroundCurrentShell: vi.fn(),
       backgroundShells: new Map(),
       registerBackgroundShell: vi.fn(),
-      killBackgroundShell: vi.fn(),
+      dismissBackgroundShell: vi.fn(),
     });
     mockedUseVim.mockReturnValue({ handleInput: vi.fn() });
     mockedUseFolderTrust.mockReturnValue({
@@ -1023,7 +1023,7 @@ describe('AppContainer State Management', () => {
         backgroundCurrentShell: vi.fn(),
         backgroundShells: new Map(),
         registerBackgroundShell: vi.fn(),
-        killBackgroundShell: vi.fn(),
+        dismissBackgroundShell: vi.fn(),
       });
 
       // Act: Render the container
@@ -1074,7 +1074,7 @@ describe('AppContainer State Management', () => {
         backgroundCurrentShell: vi.fn(),
         backgroundShells: new Map(),
         registerBackgroundShell: vi.fn(),
-        killBackgroundShell: vi.fn(),
+        dismissBackgroundShell: vi.fn(),
       });
 
       // Act: Render the container
@@ -1126,7 +1126,7 @@ describe('AppContainer State Management', () => {
         backgroundCurrentShell: vi.fn(),
         backgroundShells: new Map(),
         registerBackgroundShell: vi.fn(),
-        killBackgroundShell: vi.fn(),
+        dismissBackgroundShell: vi.fn(),
       });
 
       // Act: Render the container
@@ -1178,7 +1178,7 @@ describe('AppContainer State Management', () => {
         backgroundCurrentShell: vi.fn(),
         backgroundShells: new Map(),
         registerBackgroundShell: vi.fn(),
-        killBackgroundShell: vi.fn(),
+        dismissBackgroundShell: vi.fn(),
       });
 
       // Act: Render the container
@@ -1234,7 +1234,7 @@ describe('AppContainer State Management', () => {
         backgroundCurrentShell: vi.fn(),
         backgroundShells: new Map(),
         registerBackgroundShell: vi.fn(),
-        killBackgroundShell: vi.fn(),
+        dismissBackgroundShell: vi.fn(),
       });
 
       // Act: Render the container
@@ -1287,7 +1287,7 @@ describe('AppContainer State Management', () => {
         backgroundCurrentShell: vi.fn(),
         backgroundShells: new Map(),
         registerBackgroundShell: vi.fn(),
-        killBackgroundShell: vi.fn(),
+        dismissBackgroundShell: vi.fn(),
       });
 
       // Act: Render the container
@@ -1402,7 +1402,7 @@ describe('AppContainer State Management', () => {
         backgroundCurrentShell: vi.fn(),
         backgroundShells: new Map(),
         registerBackgroundShell: vi.fn(),
-        killBackgroundShell: vi.fn(),
+        dismissBackgroundShell: vi.fn(),
         activePtyId: 'some-id',
       });
 
@@ -1484,7 +1484,7 @@ describe('AppContainer State Management', () => {
         backgroundCurrentShell: vi.fn(),
         backgroundShells: new Map(),
         registerBackgroundShell: vi.fn(),
-        killBackgroundShell: vi.fn(),
+        dismissBackgroundShell: vi.fn(),
       });
 
       // Default empty text buffer
@@ -1518,7 +1518,7 @@ describe('AppContainer State Management', () => {
           backgroundCurrentShell: vi.fn(),
           backgroundShells: new Map(),
           registerBackgroundShell: vi.fn(),
-          killBackgroundShell: vi.fn(),
+          dismissBackgroundShell: vi.fn(),
         });
         await setupKeypressTest();
 
@@ -1902,7 +1902,7 @@ describe('AppContainer State Management', () => {
         backgroundCurrentShell: vi.fn(),
         backgroundShells: new Map(),
         registerBackgroundShell: vi.fn(),
-        killBackgroundShell: vi.fn(),
+        dismissBackgroundShell: vi.fn(),
         activePtyId: 'some-pty-id', // Make sure activePtyId is set
       });
 
