@@ -10,7 +10,7 @@ import toml from '@iarna/toml';
 import { glob } from 'glob';
 import { z } from 'zod';
 import type { Config } from '@google/gemini-cli-core';
-import { Storage } from '@google/gemini-cli-core';
+import { debugLogger, Storage } from '@google/gemini-cli-core';
 import type { ICommandLoader } from './types.js';
 import type {
   CommandContext,
@@ -297,12 +297,16 @@ export class FileCommandLoader implements ICommandLoader {
               context,
             );
           }
-
+          debugLogger.log(
+            `partha processedContent== ${description}`,
+            processedContent,
+          );
           return {
             type: 'submit_prompt',
             content: processedContent,
           };
         } catch (e) {
+          debugLogger.log(`partha error processedContent== ${description}`, e);
           // Check if it's our specific error type
           if (e instanceof ConfirmationRequiredError) {
             // Halt and request confirmation from the UI layer.
