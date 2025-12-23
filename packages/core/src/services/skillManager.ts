@@ -126,6 +126,13 @@ export class SkillManager {
   }
 
   /**
+   * Returns a specific skill by name, regardless of enablement.
+   */
+  getSkill(name: string): SkillMetadata | null {
+    return this.skills.find((s) => s.name === name) ?? null;
+  }
+
+  /**
    * Filters discovered skills by name.
    */
   filterSkills(predicate: (skill: SkillMetadata) => boolean): void {
