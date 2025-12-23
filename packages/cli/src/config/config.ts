@@ -597,6 +597,20 @@ export async function loadCliConfig(
 
   const ptyInfo = await getPty();
 
+  const hooks = settings.hooks || {};
+  const disabledHooksFromEnv = process.env['GEMINI_HOOKS_DISABLED']
+    ? process.env['GEMINI_HOOKS_DISABLED'].split(',').map((h) => h.trim())
+    : [];
+  const disabledHooksFromSettings =
+    (hooks && 'disabled' in hooks ? hooks.disabled : []) ?? [];
+
+  const allDisabledHooks = [
+    ...new Set([...disabledHooksFromSettings, ...disabledHooksFromEnv]),
+  ];
+  if (allDisabledHooks.length > 0) {
+    hooks.disabled = allDisabledHooks;
+  }
+
   return new Config({
     sessionId,
     embeddingModel: DEFAULT_GEMINI_EMBEDDING_MODEL,
