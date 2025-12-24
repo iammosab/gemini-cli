@@ -62,6 +62,10 @@ export class Storage {
     return path.join(Storage.getGlobalGeminiDir(), 'agents');
   }
 
+  static getGlobalDependenciesDir(): string {
+    return path.join(Storage.getGlobalGeminiDir(), 'dependencies');
+  }
+
   static getSystemSettingsPath(): string {
     if (process.env['GEMINI_CLI_SYSTEM_SETTINGS_PATH']) {
       return process.env['GEMINI_CLI_SYSTEM_SETTINGS_PATH'];
