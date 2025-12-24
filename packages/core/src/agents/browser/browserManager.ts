@@ -21,7 +21,7 @@ export class BrowserManager {
       let chromium;
       try {
         const playwright = await import('playwright');
-        chromium = playwright.chromium;
+        chromium = playwright.chromium || playwright.default?.chromium;
       } catch (_e) {
         try {
           const requireUser = module.createRequire(
@@ -29,22 +29,34 @@ export class BrowserManager {
           );
           const playwrightPath = requireUser.resolve('playwright');
           const playwright = await import(playwrightPath);
-          chromium = playwright.chromium;
+          chromium = playwright.chromium || playwright.default?.chromium;
         } catch (_e2) {
           // Fallback: Managed installation in ~/.gemini/dependencies
           chromium = await this.ensureManagedPlaywrightAvailable();
         }
       }
 
-      this.browser = await chromium.launch({
-        headless: false,
-        // channel: 'chrome', // Use actual Google Chrome
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--window-size=1024,1024',
-        ],
-      });
+      debugLogger.log(
+        `Launching browser with executablePath: ${chromium.executablePath()}`,
+      );
+      try {
+        this.browser = await chromium.launch({
+          headless: false,
+          // channel: 'chrome', // Use actual Google Chrome
+          args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--window-size=1024,1024',
+          ],
+        });
+      } catch (error: unknown) {
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+        const msg = `Failed to launch browser: ${errorMessage}. Executable path: ${chromium.executablePath()}`;
+        console.error(msg);
+        debugLogger.log(msg);
+        throw error;
+      }
 
       this.context = await this.browser!.newContext({
         viewport: null,
@@ -103,7 +115,7 @@ export class BrowserManager {
     try {
       const playwrightPath = requireGlobal.resolve('playwright');
       const playwright = await import(playwrightPath);
-      return playwright.chromium;
+      return playwright.chromium || playwright.default?.chromium;
     } catch (_e3) {
       debugLogger.log('Playwright not found globally. Installing...');
       try {
@@ -111,7 +123,7 @@ export class BrowserManager {
 
         const playwrightPath = requireGlobal.resolve('playwright');
         const playwright = await import(playwrightPath);
-        return playwright.chromium;
+        return playwright.chromium || playwright.default?.chromium;
       } catch (installError: unknown) {
         const errorMessage =
           installError instanceof Error
