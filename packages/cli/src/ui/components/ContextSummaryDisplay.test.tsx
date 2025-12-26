@@ -55,6 +55,7 @@ describe('<ContextSummaryDisplay />', () => {
     };
     const { lastFrame, unmount } = renderWithWidth(120, props);
     expect(lastFrame()).toMatchSnapshot();
+    expect(lastFrame()!.includes('\n')).toBe(false);
     unmount();
   });
 
@@ -72,6 +73,38 @@ describe('<ContextSummaryDisplay />', () => {
     };
     const { lastFrame, unmount } = renderWithWidth(60, props);
     expect(lastFrame()).toMatchSnapshot();
+    expect(lastFrame()!.includes('\n')).toBe(true);
     unmount();
+  });
+
+  it('should switch layout at the 80-column breakpoint', () => {
+    const props = {
+      ...baseProps,
+      geminiMdFileCount: 1,
+      contextFileNames: ['GEMINI.md'],
+      mcpServers: { 'test-server': { command: 'test' } },
+      ideContext: {
+        workspaceState: {
+          openFiles: [{ path: '/a/b/c', timestamp: Date.now() }],
+        },
+      },
+    };
+
+    // At 80 columns, should be on one line
+    const { lastFrame: wideFrame, unmount: unmountWide } = renderWithWidth(
+      80,
+      props,
+    );
+    expect(wideFrame()!.includes('\n')).toBe(false);
+    unmountWide();
+
+    // At 79 columns, should be on multiple lines
+    const { lastFrame: narrowFrame, unmount: unmountNarrow } = renderWithWidth(
+      79,
+      props,
+    );
+    expect(narrowFrame()!.includes('\n')).toBe(true);
+    expect(narrowFrame()!.split('\n').length).toBe(4);
+    unmountNarrow();
   });
 });

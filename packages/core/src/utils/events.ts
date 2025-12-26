@@ -68,21 +68,32 @@ export interface MemoryChangedPayload {
 }
 
 /**
- * Payload for the 'hook-start' event.
+ * Base payload for hook-related events.
  */
-export interface HookStartPayload {
+export interface HookPayload {
   hookName: string;
   eventName: string;
+}
+
+/**
+ * Payload for the 'hook-start' event.
+ */
+export interface HookStartPayload extends HookPayload {
+  /**
+   * The 1-based index of the current hook in the execution sequence.
+   * Used for progress indication (e.g. "Hook 1/3").
+   */
   hookIndex?: number;
+  /**
+   * The total number of hooks in the current execution sequence.
+   */
   totalHooks?: number;
 }
 
 /**
  * Payload for the 'hook-end' event.
  */
-export interface HookEndPayload {
-  hookName: string;
-  eventName: string;
+export interface HookEndPayload extends HookPayload {
   success: boolean;
 }
 

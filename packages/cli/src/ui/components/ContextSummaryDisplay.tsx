@@ -85,23 +85,6 @@ export const ContextSummaryDisplay: React.FC<ContextSummaryDisplayProps> = ({
 
   const summaryParts = [openFilesText, geminiMdText, mcpText].filter(Boolean);
 
-  const renderPart = (
-    text: string,
-    isLast: boolean,
-    color = theme.text.secondary,
-  ) => (
-    <Box key={text} flexShrink={0}>
-      <Text color={color} wrap="truncate">
-        {text}
-      </Text>
-      {!isLast && (
-        <Text color={theme.text.secondary} wrap="truncate">
-          {' | '}
-        </Text>
-      )}
-    </Box>
-  );
-
   if (isNarrow) {
     return (
       <Box flexDirection="column" paddingX={1}>
@@ -118,15 +101,10 @@ export const ContextSummaryDisplay: React.FC<ContextSummaryDisplayProps> = ({
   }
 
   return (
-    <Box paddingX={1} flexDirection="row">
-      <Box flexShrink={0}>
-        <Text color={theme.text.secondary} wrap="truncate">
-          Using:{' '}
-        </Text>
-      </Box>
-      {summaryParts.map((part, index) =>
-        renderPart(part, index === summaryParts.length - 1),
-      )}
+    <Box paddingX={1}>
+      <Text color={theme.text.secondary}>
+        Using: {summaryParts.join(' | ')}
+      </Text>
     </Box>
   );
 };

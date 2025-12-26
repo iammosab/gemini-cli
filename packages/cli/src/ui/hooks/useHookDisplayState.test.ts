@@ -18,8 +18,6 @@ import { act } from 'react';
 describe('useHookDisplayState', () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    coreEvents.removeAllListeners(CoreEvent.HookStart);
-    coreEvents.removeAllListeners(CoreEvent.HookEnd);
   });
 
   afterEach(() => {
@@ -173,6 +171,62 @@ describe('useHookDisplayState', () => {
 
     act(() => {
       vi.advanceTimersByTime(500);
+    });
+
+    expect(result.current).toHaveLength(0);
+  });
+
+  it('should handle interleaved hooks with same name and event', () => {
+    const { result } = renderHook(() => useHookDisplayState());
+    const hook = { hookName: 'same-hook', eventName: 'same-event' };
+
+    // Start Hook 1 at t=0
+    act(() => {
+      coreEvents.emitHookStart(hook);
+    });
+
+    // Advance to t=500
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
+
+    // Start Hook 2 at t=500
+    act(() => {
+      coreEvents.emitHookStart(hook);
+    });
+
+    expect(result.current).toHaveLength(2);
+    expect(result.current[0].name).toBe('same-hook');
+    expect(result.current[1].name).toBe('same-hook');
+
+    // End Hook 1 at t=600 (Duration 600ms -> delay 400ms)
+    act(() => {
+      vi.advanceTimersByTime(100);
+      coreEvents.emitHookEnd({ ...hook, success: true });
+    });
+
+    // Both still visible (Hook 1 pending removal in 400ms)
+    expect(result.current).toHaveLength(2);
+
+    // Advance 400ms (t=1000). Hook 1 should be removed.
+    act(() => {
+      vi.advanceTimersByTime(400);
+    });
+
+    expect(result.current).toHaveLength(1);
+
+    // End Hook 2 at t=1100 (Duration: 1100 - 500 = 600ms -> delay 400ms)
+    act(() => {
+      vi.advanceTimersByTime(100);
+      coreEvents.emitHookEnd({ ...hook, success: true });
+    });
+
+    // Hook 2 still visible (pending removal in 400ms)
+    expect(result.current).toHaveLength(1);
+
+    // Advance 400ms (t=1500). Hook 2 should be removed.
+    act(() => {
+      vi.advanceTimersByTime(400);
     });
 
     expect(result.current).toHaveLength(0);

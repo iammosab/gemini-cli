@@ -126,9 +126,10 @@ import { useInputHistoryStore } from './hooks/useInputHistoryStore.js';
 import { enableBracketedPaste } from './utils/bracketedPaste.js';
 import { useBanner } from './hooks/useBanner.js';
 import { useHookDisplayState } from './hooks/useHookDisplayState.js';
-
-const WARNING_PROMPT_DURATION_MS = 1000;
-const QUEUE_ERROR_DISPLAY_DURATION_MS = 3000;
+import {
+  WARNING_PROMPT_DURATION_MS,
+  QUEUE_ERROR_DISPLAY_DURATION_MS,
+} from './constants.js';
 
 function isToolExecuting(pendingHistoryItems: HistoryItemWithoutId[]) {
   return pendingHistoryItems.some((item) => {
