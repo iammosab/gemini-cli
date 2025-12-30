@@ -10,8 +10,15 @@ import type {
   LogoutActionReturn,
 } from './types.js';
 import { CommandKind } from './types.js';
-import { clearCachedCredentialFile } from '@google/gemini-cli-core';
+import {
+  clearCachedCredentialFile,
+  UserAccountManager,
+  AuthType,
+  type MessageActionReturn,
+} from '@google/gemini-cli-core';
 import { SettingScope } from '../../config/settings.js';
+
+const userAccountManager = new UserAccountManager();
 
 const authLoginCommand: SlashCommand = {
   name: 'login',
@@ -45,11 +52,95 @@ const authLogoutCommand: SlashCommand = {
   },
 };
 
+const authListCommand: SlashCommand = {
+  name: 'list',
+  description: 'List all authenticated accounts',
+  kind: CommandKind.BUILT_IN,
+  action: async (_context, _args): Promise<MessageActionReturn> => {
+    const accounts = userAccountManager.getAccounts();
+    const active = userAccountManager.getCachedGoogleAccount();
+
+    if (accounts.length === 0) {
+      return {
+        type: 'message',
+        messageType: 'info',
+        content: 'No accounts found.',
+      };
+    }
+
+    const list = accounts
+      .map((acc) => (acc === active ? `* ${acc} (active)` : `  ${acc}`))
+      .join('\n');
+
+    return {
+      type: 'message',
+      messageType: 'info',
+      content: `Authenticated accounts:\n${list}`,
+    };
+  },
+};
+
+const authSwitchCommand: SlashCommand = {
+  name: 'switch',
+  description: 'Switch to another authenticated account',
+  kind: CommandKind.BUILT_IN,
+  action: async (context, args): Promise<MessageActionReturn> => {
+    const email = args[0];
+    if (!email) {
+      return {
+        type: 'message',
+        messageType: 'error',
+        content: 'Please provide an email address to switch to.',
+      };
+    }
+
+    const accounts = userAccountManager.getAccounts();
+    if (!accounts.includes(email)) {
+      return {
+        type: 'message',
+        messageType: 'error',
+        content: `Account ${email} not found. Please login first.`,
+      };
+    }
+
+    if (!context.services.config) {
+      return {
+        type: 'message',
+        messageType: 'error',
+        content: 'Config service not available.',
+      };
+    }
+
+    await userAccountManager.cacheGoogleAccount(email);
+
+    try {
+      await context.services.config.refreshAuth(AuthType.LOGIN_WITH_GOOGLE);
+    } catch (e) {
+      return {
+        type: 'message',
+        messageType: 'error',
+        content: `Failed to switch account: ${e}`,
+      };
+    }
+
+    return {
+      type: 'message',
+      messageType: 'info',
+      content: `Switched to account: ${email}`,
+    };
+  },
+};
+
 export const authCommand: SlashCommand = {
   name: 'auth',
   description: 'Manage authentication',
   kind: CommandKind.BUILT_IN,
-  subCommands: [authLoginCommand, authLogoutCommand],
+  subCommands: [
+    authLoginCommand,
+    authLogoutCommand,
+    authListCommand,
+    authSwitchCommand,
+  ],
   action: (context, args) =>
     // Default to login if no subcommand is provided
     authLoginCommand.action!(context, args),

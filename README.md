@@ -194,6 +194,28 @@ gemini
 For Google Workspace accounts and other authentication methods, see the
 [authentication guide](./docs/get-started/authentication.md).
 
+### Multi-Account Support
+
+Gemini CLI supports managing multiple Google accounts. You can switch between
+personal and work accounts without re-authenticating each time.
+
+#### List authenticated accounts
+
+```bash
+gemini auth list
+```
+
+#### Switch between accounts
+
+```bash
+gemini auth switch user@example.com
+```
+
+#### Add a new account
+
+Simply run `gemini auth login` to authenticate with a new account. It will be
+added to your list of authenticated accounts.
+
 ## 🚀 Getting Started
 
 ### Basic Usage

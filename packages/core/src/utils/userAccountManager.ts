@@ -128,6 +128,16 @@ export class UserAccountManager {
     return allAccounts.size;
   }
 
+  getAccounts(): string[] {
+    const filePath = this.getGoogleAccountsCachePath();
+    const accounts = this.readAccountsSync(filePath);
+    const allAccounts = new Set(accounts.old);
+    if (accounts.active) {
+      allAccounts.add(accounts.active);
+    }
+    return Array.from(allAccounts);
+  }
+
   async clearCachedGoogleAccount(): Promise<void> {
     const filePath = this.getGoogleAccountsCachePath();
     const accounts = await this.readAccounts(filePath);

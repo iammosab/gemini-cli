@@ -8,6 +8,7 @@ import yargs from 'yargs/yargs';
 import { hideBin } from 'yargs/helpers';
 import process from 'node:process';
 import { mcpCommand } from '../commands/mcp.js';
+import { authCommand } from '../commands/auth.js';
 import { extensionsCommand } from '../commands/extensions.js';
 import { hooksCommand } from '../commands/hooks.js';
 import {
@@ -249,6 +250,8 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
     )
     // Register MCP subcommands
     .command(mcpCommand)
+    // Register Auth subcommands
+    .command(authCommand)
     // Ensure validation flows through .fail() for clean UX
     .fail((msg, err) => {
       if (err) throw err;

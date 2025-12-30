@@ -25,9 +25,11 @@ export class OAuthCredentialStorage {
   /**
    * Load cached OAuth credentials
    */
-  static async loadCredentials(): Promise<Credentials | null> {
+  static async loadCredentials(
+    account: string = MAIN_ACCOUNT_KEY,
+  ): Promise<Credentials | null> {
     try {
-      const credentials = await this.storage.getCredentials(MAIN_ACCOUNT_KEY);
+      const credentials = await this.storage.getCredentials(account);
 
       if (credentials?.token) {
         const { accessToken, refreshToken, expiresAt, tokenType, scope } =
@@ -62,14 +64,17 @@ export class OAuthCredentialStorage {
   /**
    * Save OAuth credentials
    */
-  static async saveCredentials(credentials: Credentials): Promise<void> {
+  static async saveCredentials(
+    credentials: Credentials,
+    account: string = MAIN_ACCOUNT_KEY,
+  ): Promise<void> {
     if (!credentials.access_token) {
       throw new Error('Attempted to save credentials without an access token.');
     }
 
     // Convert Google Credentials to OAuthCredentials format
     const mcpCredentials: OAuthCredentials = {
-      serverName: MAIN_ACCOUNT_KEY,
+      serverName: account,
       token: {
         accessToken: credentials.access_token,
         refreshToken: credentials.refresh_token || undefined,
@@ -86,9 +91,11 @@ export class OAuthCredentialStorage {
   /**
    * Clear cached OAuth credentials
    */
-  static async clearCredentials(): Promise<void> {
+  static async clearCredentials(
+    account: string = MAIN_ACCOUNT_KEY,
+  ): Promise<void> {
     try {
-      await this.storage.deleteCredentials(MAIN_ACCOUNT_KEY);
+      await this.storage.deleteCredentials(account);
 
       // Also try to remove the old file if it exists
       const oldFilePath = path.join(os.homedir(), GEMINI_DIR, OAUTH_FILE);

@@ -59,11 +59,13 @@ export type ContentGeneratorConfig = {
   vertexai?: boolean;
   authType?: AuthType;
   proxy?: string;
+  forceNew?: boolean;
 };
 
 export async function createContentGeneratorConfig(
   config: Config,
   authType: AuthType | undefined,
+  forceNew: boolean = false,
 ): Promise<ContentGeneratorConfig> {
   const geminiApiKey =
     process.env['GEMINI_API_KEY'] || (await loadApiKey()) || undefined;
@@ -77,6 +79,7 @@ export async function createContentGeneratorConfig(
   const contentGeneratorConfig: ContentGeneratorConfig = {
     authType,
     proxy: config?.getProxy(),
+    forceNew,
   };
 
   // If we are using Google auth or we are in Cloud Shell, there is nothing else to validate for now
@@ -152,6 +155,7 @@ export async function createContentGenerator(
           config.authType,
           gcConfig,
           sessionId,
+          config.forceNew,
         ),
         gcConfig,
       );

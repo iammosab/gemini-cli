@@ -109,8 +109,9 @@ function getUseEncryptedStorageFlag() {
 async function initOauthClient(
   authType: AuthType,
   config: Config,
+  forceNew: boolean = false,
 ): Promise<AuthClient> {
-  const credentials = await fetchCachedCredentials();
+  const credentials = forceNew ? null : await fetchCachedCredentials();
 
   if (
     credentials &&
@@ -153,7 +154,11 @@ async function initOauthClient(
 
   client.on('tokens', async (tokens: Credentials) => {
     if (useEncryptedStorage) {
-      await OAuthCredentialStorage.saveCredentials(tokens);
+      const activeAccount = userAccountManager.getCachedGoogleAccount();
+      await OAuthCredentialStorage.saveCredentials(
+        tokens,
+        activeAccount || undefined,
+      );
     } else {
       await cacheCredentials(tokens);
     }
@@ -341,9 +346,16 @@ async function initOauthClient(
 export async function getOauthClient(
   authType: AuthType,
   config: Config,
+  forceNew: boolean = false,
 ): Promise<AuthClient> {
+  if (forceNew) {
+    oauthClientPromises.delete(authType);
+  }
   if (!oauthClientPromises.has(authType)) {
-    oauthClientPromises.set(authType, initOauthClient(authType, config));
+    oauthClientPromises.set(
+      authType,
+      initOauthClient(authType, config, forceNew),
+    );
   }
   return oauthClientPromises.get(authType)!;
 }
@@ -582,7 +594,8 @@ async function fetchCachedCredentials(): Promise<
 > {
   const useEncryptedStorage = getUseEncryptedStorageFlag();
   if (useEncryptedStorage) {
-    return OAuthCredentialStorage.loadCredentials();
+    const activeAccount = userAccountManager.getCachedGoogleAccount();
+    return OAuthCredentialStorage.loadCredentials(activeAccount || undefined);
   }
 
   const pathsToTry = [
@@ -614,7 +627,8 @@ export async function clearCachedCredentialFile() {
   try {
     const useEncryptedStorage = getUseEncryptedStorageFlag();
     if (useEncryptedStorage) {
-      await OAuthCredentialStorage.clearCredentials();
+      const activeAccount = userAccountManager.getCachedGoogleAccount();
+      await OAuthCredentialStorage.clearCredentials(activeAccount || undefined);
     } else {
       await fs.rm(Storage.getOAuthCredsPath(), { force: true });
     }
@@ -654,6 +668,14 @@ async function fetchAndCacheUserInfo(client: OAuth2Client): Promise<void> {
 
     const userInfo = await response.json();
     await userAccountManager.cacheGoogleAccount(userInfo.email);
+
+    const useEncryptedStorage = getUseEncryptedStorageFlag();
+    if (useEncryptedStorage && client.credentials) {
+      await OAuthCredentialStorage.saveCredentials(
+        client.credentials,
+        userInfo.email,
+      );
+    }
   } catch (error) {
     debugLogger.log('Error retrieving user info:', error);
   }

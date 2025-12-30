@@ -47,6 +47,7 @@ export * from './code_assist/server.js';
 export * from './code_assist/types.js';
 export * from './code_assist/telemetry.js';
 export * from './core/apiKeyCredentialStorage.js';
+export * from './utils/userAccountManager.js';
 
 // Export utilities
 export * from './utils/paths.js';
@@ -85,6 +86,7 @@ export * from './utils/extensionLoader.js';
 export * from './utils/package.js';
 export * from './utils/version.js';
 export * from './utils/checkpointUtils.js';
+export * from './utils/session.js';
 
 // Export services
 export * from './services/fileDiscoveryService.js';
